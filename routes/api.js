@@ -6,8 +6,8 @@ var mongooseTypes = require("mongoose-types"); // use to check for a url datatyp
 mongooseTypes.loadTypes(mongoose);
 var Url = mongoose.SchemaTypes.Url;
 
-var mongo_url = ''; //'mongodb://test:test@ds127878.mlab.com:27878/urlshorten'
-mongo_url = 'mongodb://jbizzel:TheServerNameD1r3ct1v3@ds129018.mlab.com:29018/short-url-microservice';
+var mongo_url = ''; 
+mongo_url = process.env.MONGODBURI;
 //Connect to the database
 mongoose.Promise = global.Promise;
 mongoose.connect(mongo_url);
@@ -42,15 +42,9 @@ router.get('/*', function(req, res, next) {
             res.statusCode = 302;
             res.setHeader('Location', doc.urlLong);
             res.end();
-            console.log('redirecting...');
+
         });    
             
-       /* Urlshorten.findOne({id: url}, function(err,doc){
-            if(err) throw err;
-            console.log(err);
-            console.log(doc);
-            res.redirect(doc.url);
-        });*/
     } else {
         console.log(url);
          // next url with id
@@ -58,10 +52,7 @@ router.get('/*', function(req, res, next) {
         var highestId;
         Urlshorten.find().sort({ "id":-1}).limit(1).exec(function(err, doc) {
             if (err) console.log(err);
-            console.log('Document found: ' + doc.length);
-            //console.log('Highest ID: ' + doc[0].id);
-            // res.status(302).send("High id = " + doc[0].id);
-            // res.end();
+
             if (doc.length < 1) {
                 console.log("set high id to zero");
                 highestId = 0;
@@ -73,7 +64,7 @@ router.get('/*', function(req, res, next) {
             console.log('\n');
             var i = highestId + 1; 
             var shortUrl = 'https://url-shortener-microservice-ajitsy.c9users.io/api/' + i;
-            console.log('Next insert will be ... ' + shortUrl);
+
             var itemOne = Urlshorten({urlLong: url, 
                                         urlShort: shortUrl, 
                                         id: i}).save(function(err) {
